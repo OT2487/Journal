@@ -1,0 +1,10 @@
+{
+  "name":"Idea Vault",
+  "short_name":"Idea Vault",
+  "start_url":".",
+  "display":"standalone",
+  "background_color":"#090b0e",
+  "theme_color":"#0b0d10",
+  "description":"A private synced journal for ideas and thoughts.",
+  "icons":[]
+}

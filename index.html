@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Idea Vault</title>
+<style>
+:root{--bg:#090b0e;--panel:#12161b;--panel2:#171c22;--border:#272e36;--text:#eef2f6;--muted:#8b96a3;--accent:#829cff;--danger:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#18213b,#090b0e 42%);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}
+header{max-width:1100px;margin:auto;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:800;font-size:20px}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.wrap{max-width:1100px;margin:auto;padding:10px 20px 40px}.top{display:flex;gap:10px;margin-bottom:18px}.search{flex:1;background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:12px;outline:0}
+.btn{border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 14px}.primary{background:var(--accent);color:#07101d;border:0;font-weight:800}.danger{color:var(--danger)}
+.card{background:rgba(18,22,27,.95);border:1px solid var(--border);border-radius:17px;padding:20px;box-shadow:0 15px 45px #0004}.hero{display:grid;grid-template-columns:1.4fr .6fr;gap:15px;margin-bottom:18px}.hero h1{font-size:30px;margin:8px 0}.muted{color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#0d1115;border:1px solid var(--border);padding:13px;border-radius:11px}.stat b{display:block;font-size:22px}.stat span{font-size:11px;color:var(--muted)}
+.editor{display:none;margin-bottom:20px}.editor.show{display:block}.title{width:100%;background:transparent;border:0;color:var(--text);font-size:28px;font-weight:800;outline:0;padding:5px 0 15px}.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.meta>*{background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:8px;border-radius:9px}.body{width:100%;min-height:390px;background:#0d1115;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:16px;resize:vertical;outline:0;line-height:1.65}.actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}.entries{display:grid;gap:10px}.entry{display:flex;justify-content:space-between;gap:15px;background:var(--panel);border:1px solid var(--border);padding:16px;border-radius:13px}.entry h3{margin:0 0 5px}.preview{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metaLine{color:#687481;font-size:11px;margin-top:8px}.pill{background:#1e2731;padding:3px 7px;border-radius:99px;margin-left:6px}.empty{text-align:center;padding:50px;color:var(--muted);border:1px dashed var(--border);border-radius:14px}
+#auth{max-width:420px;margin:12vh auto;padding:20px}.authbox{padding:25px}.authbox h1{margin-top:0}.authbox input{width:100%;margin:6px 0;background:#0d1115;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px}.auth-actions{display:grid;gap:8px;margin-top:10px}
+#app{display:none}.user{font-size:12px;color:var(--muted)}.toast{position:fixed;bottom:20px;right:20px;background:#eef3ff;color:#09111f;padding:11px 14px;border-radius:10px;opacity:0;transform:translateY(10px);transition:.2s}.toast.show{opacity:1;transform:none}
+@media(max-width:700px){header{padding:15px}.wrap{padding:5px 15px 30px}.hero{grid-template-columns:1fr}.hero h1{font-size:25px}.entry{display:block}.entry .btn{margin-top:10px}.actions{flex-direction:column}.actions .btn{width:100%}}
+</style>
+</head>
+<body>
+<div id="auth">
+  <div class="card authbox">
+    <div class="brand">✦ Idea Vault<small>Your private synced journal</small></div>
+    <h1 id="authTitle">Sign in</h1>
+    <p class="muted" id="authHelp">Use the same account on your phone and computer.</p>
+    <input id="email" type="email" autocomplete="email" placeholder="Email">
+    <input id="password" type="password" autocomplete="current-password" placeholder="Password">
+    <div class="auth-actions">
+      <button class="btn primary" id="authBtn">Sign in</button>
+      <button class="btn" id="switchAuth">Create an account</button>
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:15px">Your journal entries are stored in the cloud database and protected by your account.</p>
+  </div>
+</div>
+
+<div id="app">
+<header><div class="brand">✦ Idea Vault<small>Thoughts worth keeping.</small></div><div style="text-align:right"><div class="user" id="userEmail"></div><button class="btn" id="signOut">Sign out</button></div></header>
+<main class="wrap">
+  <div class="top"><input class="search" id="search" placeholder="Search your journal…"><button class="btn primary" id="newBtn">＋ New</button></div>
+  <section class="hero">
+    <div class="card"><span class="muted">TODAY'S THOUGHT</span><h1 id="prompt">What is something you've been thinking about lately?</h1><button class="btn" id="promptBtn">Another prompt</button></div>
+    <div class="card stats"><div class="stat"><b id="count">0</b><span>Entries</span></div><div class="stat"><b id="words">0</b><span>Words</span></div><div class="stat"><b id="favs">0</b><span>Favorites</span></div></div>
+  </section>
+  <section class="editor" id="editor">
+    <div class="card">
+      <input class="title" id="title" placeholder="Give this thought a title…">
+      <div class="meta"><input id="tag" placeholder="Tag"><select id="mood"><option value="">Mood</option><option>Curious</option><option>Excited</option><option>Focused</option><option>Calm</option><option>Frustrated</option><option>Unsure</option><option>Inspired</option></select></div>
+      <textarea class="body" id="body" placeholder="Start writing…"></textarea>
+      <div class="actions"><div><button class="btn primary" id="save">Save entry</button><button class="btn" id="cancel">Cancel</button></div><div><button class="btn" id="fav">☆ Favorite</button><button class="btn danger" id="del">Delete</button></div></div>
+    </div>
+  </section>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:25px 0 10px"><h2 style="font-size:17px">Your entries</h2><span class="muted" id="shown"></span></div>
+  <section class="entries" id="entries"></section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* Paste your Supabase project URL and publishable/anon key below. */
+const SUPABASE_URL = "https://bddiohdjqybroakanohk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_FuftxSqhv2bCNjxGmL00Sw_PL2N226a";
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const prompts=["What is something you've been thinking about lately?","If you had unlimited time for one project, what would you build?","What problem do you wish someone would solve?","What is an idea you keep coming back to?","What did you learn today that surprised you?","Where do you want to be a year from now?","What would you try if you knew you couldn't fail?","What is something you want to understand better?"];
+let rows=[], editing=null, favorite=false, signUp=false;
+
+const $=x=>document.getElementById(x);
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1700)}
+function esc(s=""){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function date(s){return new Date(s).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}
+function wc(s){return s.trim()?s.trim().split(/\s+/).length:0}
+
+async function load(){
+ const {data,error}=await client.from("journal_entries").select("*").order("updated_at",{ascending:false});
+ if(error){toast(error.message);return} rows=data||[];render();
+}
+function render(){
+ const q=$("search").value.toLowerCase().trim();
+ const data=rows.filter(e=>(e.title+" "+e.body+" "+(e.tag||"")+" "+(e.mood||"")).toLowerCase().includes(q));
+ $("count").textContent=rows.length;$("words").textContent=rows.reduce((n,e)=>n+wc((e.title||"")+" "+(e.body||"")),0).toLocaleString();$("favs").textContent=rows.filter(e=>e.favorite).length;$("shown").textContent=data.length+" shown";
+ $("entries").innerHTML=data.length?data.map(e=>`<article class="entry"><div style="min-width:0"><h3>${esc(e.title||"Untitled thought")}</h3><div class="preview">${esc((e.body||"No text yet").replace(/\n/g," "))}</div><div class="metaLine">${date(e.updated_at)}${e.tag?` <span class="pill">${esc(e.tag)}</span>`:""}${e.mood?` <span class="pill">${esc(e.mood)}</span>`:""} ${e.favorite?"★":""}</div></div><button class="btn" onclick="openEntry('${e.id}')">Open</button></article>`).join(""):`<div class="empty">✦<br><strong>No entries yet.</strong><br>Start writing and your thoughts will stay synced.</div>`;
+}
+function openEditor(e=null){
+ editing=e?.id||null;favorite=!!e?.favorite;
+ $("title").value=e?.title||"";$("body").value=e?.body||"";$("tag").value=e?.tag||"";$("mood").value=e?.mood||"";
+ $("fav").textContent=favorite?"★ Favorited":"☆ Favorite";$("del").style.display=e?"inline-block":"none";$("editor").classList.add("show");$("title").focus();
+}
+window.openEntry=id=>openEditor(rows.find(x=>x.id===id));
+async function saveEntry(){
+ const user=(await client.auth.getUser()).data.user;if(!user)return;
+ const payload={title:$("title").value.trim(),body:$("body").value.trim(),tag:$("tag").value.trim()||null,mood:$("mood").value||null,favorite};
+ if(!payload.title&&!payload.body){toast("Write something first.");return}
+ let result;
+ if(editing) result=await client.from("journal_entries").update(payload).eq("id",editing);
+ else result=await client.from("journal_entries").insert(payload);
+ if(result.error){toast(result.error.message);return}
+ toast("Saved.");$("editor").classList.remove("show");await load();
+}
+async function delEntry(){if(!editing)return;if(!confirm("Delete this entry?"))return;const {error}=await client.from("journal_entries").delete().eq("id",editing);if(error){toast(error.message);return}toast("Deleted.");$("editor").classList.remove("show");await load()}
+$("newBtn").onclick=()=>openEditor();$("save").onclick=saveEntry;$("cancel").onclick=()=>$("editor").classList.remove("show");$("del").onclick=delEntry;
+$("fav").onclick=()=>{favorite=!favorite;$("fav").textContent=favorite?"★ Favorited":"☆ Favorite"};$("search").oninput=render;
+$("promptBtn").onclick=()=>{$("prompt").textContent=prompts[Math.floor(Math.random()*prompts.length)]};
+
+$("switchAuth").onclick=()=>{signUp=!signUp;$("authTitle").textContent=signUp?"Create account":"Sign in";$("authBtn").textContent=signUp?"Create account":"Sign in";$("switchAuth").textContent=signUp?"Back to sign in":"Create an account"};
+$("authBtn").onclick=async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(signUp){const {error}=await client.auth.signUp({email,password});if(error)toast(error.message);else toast("Account created. Check your email if confirmation is enabled.")}
+ else{const {error}=await client.auth.signInWithPassword({email,password});if(error)toast(error.message)}
+};
+$("signOut").onclick=async()=>{await client.auth.signOut()};
+
+client.auth.onAuthStateChange(async(_event,session)=>{
+ if(session){$("auth").style.display="none";$("app").style.display="block";$("userEmail").textContent=session.user.email||"";await load()}
+ else{$("auth").style.display="block";$("app").style.display="none"}
+});
+(async()=>{const {data}=await client.auth.getSession();if(data.session){$("auth").style.display="none";$("app").style.display="block";$("userEmail").textContent=data.session.user.email||"";await load()}})();
+</script>
+</body>
+</html>
